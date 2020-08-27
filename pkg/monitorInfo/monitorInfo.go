@@ -15,7 +15,7 @@ const (
 	errorFailedToParse string = "failed to parse monitor : "
 )
 
-type Monitors struct {
+type MonitorInfo struct {
 }
 
 type Monitor struct {
@@ -28,13 +28,13 @@ type Monitor struct {
 	Left int
 }
 
-// NewMonitors : Creates a new Monitors object
-func NewMonitors() *Monitors {
-	return new(Monitors)
+// NewMonitorInfo : Creates a new MonitorInfo object
+func NewMonitorInfo() *MonitorInfo {
+	return new(MonitorInfo)
 }
 
-// GetMonitors : Get computer monitors
-func (m *Monitors) GetMonitors() ([]Monitor, error) {
+// GetMonitorInfo : Get computer monitors
+func (m *MonitorInfo) GetMonitorInfo() ([]Monitor, error) {
 	// Call xrandr to get monitor info
 	monitorInfo, err := getMonitorInfo()
 	if err!=nil {
@@ -42,7 +42,7 @@ func (m *Monitors) GetMonitors() ([]Monitor, error) {
 	}
 
 	// Parse monitor info
-	monitors, err := parseMonitorsInfo(monitorInfo)
+	monitors, err := parseMonitorInfo(monitorInfo)
 
 	return monitors, err
 }
@@ -54,7 +54,7 @@ func getMonitorInfo() (string, error) {
 	return output, err
 }
 
-func parseMonitorsInfo(monitorInfo string) ([]Monitor,error) {
+func parseMonitorInfo(monitorInfo string) ([]Monitor,error) {
 	// Split xrandr result into lines
 	lines := strings.Split(monitorInfo, "\n")
 	var monitors []Monitor

@@ -1,15 +1,34 @@
 package main
 
 import (
-	"fmt"
-	"github.com/hultan/softdark/pkg/monitorInfo"
+	"github.com/hultan/softdark/internal/softdark"
+	"os"
+
+	//"github.com/hultan/softdark/pkg/monitorInfo"
+	"github.com/gotk3/gotk3/glib"
+	"github.com/gotk3/gotk3/gtk"
+	//"os"
+)
+
+const (
+	ApplicationId = "se.softteam.invoice"
+	ApplicationFlags = glib.APPLICATION_FLAGS_NONE
 )
 
 func main() {
-	m:=monitorInfo.NewMonitors()
-	monitors, err := m.GetMonitors()
+	// Create a new application
+	application, err := gtk.ApplicationNew(ApplicationId, ApplicationFlags)
 	if err!=nil {
-		fmt.Println(err.Error())
+		panic("Failed to create GTK Application")
 	}
-	fmt.Println(monitors)
+
+	mainForm := softdark.NewMainForm()
+	// Hook up the activate event handler
+	_, err=application.Connect("activate", mainForm.OpenMainForm)
+	if err!=nil {
+		panic("Failed to connect Application.Activate event")
+	}
+
+	// Start the application (and exit when it is done)
+	os.Exit(application.Run(nil))
 }

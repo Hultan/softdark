@@ -6,8 +6,8 @@ import (
 )
 
 func TestMonitors(t *testing.T) {
-	m := monitorInfo.NewMonitors()
-	got, err := m.GetMonitors()
+	m := monitorInfo.NewMonitorInfo()
+	got, err := m.GetMonitorInfo()
 	if err!=nil {
 		t.Error(err)
 	}
