@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-type MonitorInfo struct {
+type Monitors struct {
 }
 
 type Monitor struct {
@@ -21,11 +21,13 @@ type Monitor struct {
 	Left int
 }
 
-func NewMonitorInfo() *MonitorInfo {
-	return new(MonitorInfo)
+// NewMonitors : Creates a new Monitors object
+func NewMonitors() *Monitors {
+	return new(Monitors)
 }
 
-func (m *MonitorInfo) GetMonitorInfo() ([]Monitor, error) {
+// GetMonitors : Get computer monitors
+func (m *Monitors) GetMonitors() ([]Monitor, error) {
 	// Call xrandr to get monitor info
 	monitorInfo, err := getMonitorInfo()
 	if err!=nil {

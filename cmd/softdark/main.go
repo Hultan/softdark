@@ -6,8 +6,8 @@ import (
 )
 
 func main() {
-	m:=monitorInfo.NewMonitorInfo()
-	monitors, err := m.GetMonitorInfo()
+	m:=monitorInfo.NewMonitors()
+	monitors, err := m.GetMonitors()
 	if err!=nil {
 		fmt.Println(err.Error())
 	}
