@@ -8,6 +8,13 @@ import (
 	"strings"
 )
 
+const (
+	monitorRegEx string = `\s(?P<Number>\d+): \+(?P<Main>\*?)(?P<Connection>.+) (?P<Width>\d+)\/.+x(?P<Height>\d+)\/.+\+(?P<Left>\d+)\+(?P<Top>\d+)`
+	xrandrCommand string = "xrandr"
+	xrandrArgument string = "--listmonitors"
+	errorFailedToParse string = "failed to parse monitor : "
+)
+
 type Monitors struct {
 }
 
@@ -42,7 +49,7 @@ func (m *Monitors) GetMonitors() ([]Monitor, error) {
 
 func getMonitorInfo() (string, error) {
 	// Call xrandr to get monitor info
-	out, err := exec.Command("xrandr", "--listmonitors").Output()
+	out, err := exec.Command(xrandrCommand, xrandrArgument).Output()
 	output := string(out[:])
 	return output, err
 }
@@ -74,8 +81,7 @@ func parseMonitorsInfo(monitorInfo string) ([]Monitor,error) {
 
 func getMonitor(monitorInfoString string) (*Monitor,error) {
 	// Regular expression to parse the output of xrandr --listmonitors
-	regexString := `\s(?P<Number>\d+): \+(?P<Main>\*?)(?P<Connection>.+) (?P<Width>\d+)\/.+x(?P<Height>\d+)\/.+\+(?P<Left>\d+)\+(?P<Top>\d+)`
-	r := regexp.MustCompile(regexString)
+	r := regexp.MustCompile(monitorRegEx)
 	matches := r.FindStringSubmatch(monitorInfoString)
 
 	if len(matches)==8 {
@@ -122,7 +128,6 @@ func getMonitor(monitorInfoString string) (*Monitor,error) {
 
 		return &m, nil
 	} else {
-		return nil, errors.New("failed to parse monitor")
+		return nil, errors.New(errorFailedToParse + monitorInfoString)
 	}
-
 }
