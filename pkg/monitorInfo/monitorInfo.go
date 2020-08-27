@@ -17,6 +17,8 @@ type Monitor struct {
 	Connection string
 	Width int
 	Height int
+	Top int
+	Left int
 }
 
 func NewMonitorInfo() *MonitorInfo {
@@ -70,11 +72,11 @@ func parseMonitorsInfo(monitorInfo string) ([]Monitor,error) {
 
 func getMonitor(monitorInfoString string) (*Monitor,error) {
 	// Regular expression to parse the output of xrandr --listmonitors
-	regexString := `\s(?P<Number>\d+): \+(?P<Main>\*?)(?P<Connection>.+) (?P<Width>\d+)\/.+x(?P<Height>\d+)\/.+\s`
+	regexString := `\s(?P<Number>\d+): \+(?P<Main>\*?)(?P<Connection>.+) (?P<Width>\d+)\/.+x(?P<Height>\d+)\/.+\+(?P<Left>\d+)\+(?P<Top>\d+)`
 	r := regexp.MustCompile(regexString)
 	matches := r.FindStringSubmatch(monitorInfoString)
 
-	if len(matches)>1 {
+	if len(matches)==8 {
 		m:=Monitor{}
 		// Get monitor number
 		number, err := strconv.Atoi(matches[1])
@@ -101,6 +103,20 @@ func getMonitor(monitorInfoString string) (*Monitor,error) {
 			return nil, err
 		}
 		m.Height = height
+
+		// Get monitor left adjustment
+		left, err := strconv.Atoi(matches[6])
+		if err!=nil {
+			return nil, err
+		}
+		m.Left = left
+
+		// Get monitor top adjustment
+		top, err := strconv.Atoi(matches[7])
+		if err!=nil {
+			return nil, err
+		}
+		m.Top = top
 
 		return &m, nil
 	} else {
