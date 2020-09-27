@@ -1,4 +1,4 @@
-package monitorInfo
+package softmonitorInfo
 
 import (
 	"errors"
@@ -15,10 +15,10 @@ const (
 	errorFailedToParse string = "failed to parse monitor : "
 )
 
-type MonitorInfo struct {
+type SoftMonitorInfo struct {
 }
 
-type Monitor struct {
+type MonitorInfo struct {
 	Number int
 	Main bool
 	Connection string
@@ -28,13 +28,13 @@ type Monitor struct {
 	Left int
 }
 
-// NewMonitorInfo : Creates a new MonitorInfo object
-func NewMonitorInfo() *MonitorInfo {
-	return new(MonitorInfo)
+// NewSoftMonitorInfo : Creates a new SoftMonitorInfo object
+func NewSoftMonitorInfo() *SoftMonitorInfo {
+	return new(SoftMonitorInfo)
 }
 
 // GetMonitorInfo : Get computer monitors
-func (m *MonitorInfo) GetMonitorInfo() ([]Monitor, error) {
+func (m *SoftMonitorInfo) GetMonitorInfo() ([]MonitorInfo, error) {
 	// Call xrandr to get monitor info
 	monitorInfo, err := getMonitorInfo()
 	if err!=nil {
@@ -54,10 +54,10 @@ func getMonitorInfo() (string, error) {
 	return output, err
 }
 
-func parseMonitorInfo(monitorInfo string) ([]Monitor,error) {
+func parseMonitorInfo(monitorInfo string) ([]MonitorInfo,error) {
 	// Split xrandr result into lines
 	lines := strings.Split(monitorInfo, "\n")
-	var monitors []Monitor
+	var monitors []MonitorInfo
 	// Start parsing at row 1, since row 0
 	// contains the monitor count, which we
 	// don't need
@@ -79,13 +79,13 @@ func parseMonitorInfo(monitorInfo string) ([]Monitor,error) {
 	return monitors, nil
 }
 
-func getMonitor(monitorInfoString string) (*Monitor,error) {
+func getMonitor(monitorInfoString string) (*MonitorInfo,error) {
 	// Regular expression to parse the output of xrandr --listmonitors
 	r := regexp.MustCompile(monitorRegEx)
 	matches := r.FindStringSubmatch(monitorInfoString)
 
 	if len(matches)==8 {
-		m:=Monitor{}
+		m:= MonitorInfo{}
 		// Get monitor number
 		number, err := strconv.Atoi(matches[1])
 		if err!=nil {

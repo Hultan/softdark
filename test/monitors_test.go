@@ -1,12 +1,12 @@
 package test
 
 import (
-	"github.com/hultan/softdark/pkg/monitorInfo"
+	"github.com/hultan/softdark/pkg/softmonitorInfo"
 	"testing"
 )
 
 func TestMonitors(t *testing.T) {
-	m := monitorInfo.NewMonitorInfo()
+	m := softmonitorInfo.NewSoftMonitorInfo()
 	got, err := m.GetMonitorInfo()
 	if err!=nil {
 		t.Error(err)

@@ -4,14 +4,12 @@ import (
 	"github.com/hultan/softdark/internal/softdark"
 	"os"
 
-	//"github.com/hultan/softdark/pkg/monitorInfo"
 	"github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
-	//"os"
 )
 
 const (
-	ApplicationId = "se.softteam.invoice"
+	ApplicationId = "se.softteam.softdark"
 	ApplicationFlags = glib.APPLICATION_FLAGS_NONE
 )
 
