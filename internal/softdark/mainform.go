@@ -2,8 +2,7 @@ package softdark
 
 import (
 	"github.com/gotk3/gotk3/gtk"
-	"github.com/hultan/softdark/pkg/softdark"
-	"github.com/hultan/softdark/pkg/tools"
+	"github.com/hultan/softdark/internal/tools"
 	gtkHelper "github.com/hultan/softteam-tools/pkg/gtk-helper"
 	"os"
 )
@@ -11,7 +10,7 @@ import (
 type MainForm struct {
 	Window         *gtk.ApplicationWindow
 	LastAllocation *gtk.Allocation
-	SoftDark       *softdark.SoftDark
+	SoftDark       *SoftDark
 }
 
 // NewMainForm : Creates a new MainForm object
@@ -47,7 +46,7 @@ func (m *MainForm) OpenMainForm(app *gtk.Application) {
 	// Get fixed area
 	monitorArea, err := helper.GetFixed("monitor_area")
 	tools.ErrorCheckWithPanic(err, "Failed to get monitor_area")
-	m.SoftDark = softdark.NewSoftDark(monitorArea)
+	m.SoftDark = NewSoftDark(monitorArea)
 
 	// Quit button
 	button, err := helper.GetButton("quit_button")

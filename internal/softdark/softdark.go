@@ -1,16 +1,23 @@
 package softdark
 
 import (
+	"bytes"
 	"fmt"
+	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/gtk"
+	"github.com/hultan/softdark/internal/tools"
 	"github.com/hultan/softdark/pkg/softmonitorInfo"
-	"github.com/hultan/softdark/pkg/tools"
+	"github.com/kbinani/screenshot"
+	"image/png"
+	"log"
 )
+
+const buttonImageMargin = 8
 
 type SoftDark struct {
 	MonitorArea *gtk.Fixed
 	// TODO : Replace with map???
-	Monitors       []Monitor
+	Monitors       []*Monitor
 	LastAllocation *gtk.Allocation
 }
 
@@ -27,7 +34,7 @@ func (s *SoftDark) Init() {
 	s.clearMonitorArea()
 
 	// Refresh SoftDark monitor info
-	err := s.RefreshMonitorInfo()
+	err := s.refreshMonitorInfo()
 	tools.ErrorCheckWithPanic(err, "SoftDark.RefreshMonitorInfo() failed")
 
 	scaleFactor := s.calculateScaleFactor()
@@ -36,24 +43,73 @@ func (s *SoftDark) Init() {
 		currentMonitor := s.Monitors[i]
 
 		// Create a new button
-		button, err := gtk.ButtonNewWithLabel(fmt.Sprintf("%d: %s", currentMonitor.Info.Number, currentMonitor.Info.Connection))
+		button, err := gtk.ButtonNew()
 		tools.ErrorCheckWithPanic(err, "failed to add button")
 		// Store pointer to button
 		currentMonitor.Button = button
 
+		// Calculate monitor button size & position
+		width := int(float64(currentMonitor.Info.Width)/scaleFactor)
+		height := int(float64(currentMonitor.Info.Height)/scaleFactor)
+		left := int(float64(currentMonitor.Info.Left)/scaleFactor)
+		top := int(float64(currentMonitor.Info.Top)/scaleFactor)
+		//fmt.Printf("Placing button at (%v,%v), size (%v,%v)\n", top, left, height, width)
+
 		// Set button size
-		button.SetSizeRequest(
-			int(float64(currentMonitor.Info.Width)/scaleFactor),
-			int(float64(currentMonitor.Info.Height)/scaleFactor))
+		button.SetSizeRequest(width, height)
 		// Place button on MonitorArea
-		s.MonitorArea.Put(button,
-			int(float64(currentMonitor.Info.Left)/scaleFactor),
-			int(float64(currentMonitor.Info.Top)/scaleFactor))
+		s.MonitorArea.Put(button, left, top)
+
+		// Add a screenshot to the button
+		image, err := s.getScreenShot(i,width, height)
+		if err != nil {
+			log.Println(err)
+		} else {
+			button.SetImage(image)
+		}
 	}
 
 	s.MonitorArea.ShowAll()
 }
 
+// getScreenShot : Get a screenshot of a monitor, with the specified width/height
+func (s *SoftDark) getScreenShot(monitor, width, height int) (*gtk.Image, error) {
+	// Get screenshot of monitor
+	screenImage, err := screenshot.CaptureDisplay(monitor)
+	if err != nil {
+		return nil, err
+	}
+	// Convert screenshot to byte array
+	var b bytes.Buffer
+	err = png.Encode(&b, screenImage)
+	if err != nil {
+		return nil, err
+	}
+	// Create a PixBufLoader
+	loader, err := gdk.PixbufLoaderNew()
+	if err != nil {
+		return nil, err
+	}
+	// Write byte array to PixBufLoader
+	imagePixBuf, err := loader.WriteAndReturnPixbuf(b.Bytes())
+	if err != nil {
+		return nil, err
+	}
+	// Scale image down to a reasonable size
+	scaledPixbuf, err := imagePixBuf.ScaleSimple(width-buttonImageMargin*2, height-buttonImageMargin*2, gdk.INTERP_HYPER)
+	if err != nil {
+		return nil, err
+	}
+	// Create an gtk.Image from the PixBuf
+	image, err := gtk.ImageNewFromPixbuf(scaledPixbuf)
+	if err != nil {
+		return nil, err
+	}
+
+	return image, nil
+}
+
+// calculateScaleFactor : Calculate the current scale factor
 func (s *SoftDark) calculateScaleFactor() float64 {
 	height, width := s.getSize(s.Monitors)
 	allocation := s.MonitorArea.GetAllocation()
@@ -71,7 +127,7 @@ func (s *SoftDark) calculateScaleFactor() float64 {
 }
 
 // getSize : Get the maximum size of all the monitors
-func (s *SoftDark) getSize(monitors []Monitor) (height, width int) {
+func (s *SoftDark) getSize(monitors []*Monitor) (height, width int) {
 	maxWidth, maxHeight := 0, 0
 
 	for _, value := range monitors {
@@ -86,7 +142,8 @@ func (s *SoftDark) getSize(monitors []Monitor) (height, width int) {
 	return maxHeight, maxWidth
 }
 
-func (s *SoftDark) RefreshMonitorInfo() error {
+// refreshMonitorInfo : Refreshes the monitor hardware info
+func (s *SoftDark) refreshMonitorInfo() error {
 	// Get monitor hardware info
 	monitorInfoTool := softmonitorInfo.NewSoftMonitorInfo()
 	monitorInfoDetails, err := monitorInfoTool.GetMonitorInfo()
@@ -94,16 +151,17 @@ func (s *SoftDark) RefreshMonitorInfo() error {
 		return err
 	}
 
-	s.Monitors = make([]Monitor, 0)
+	s.Monitors = make([]*Monitor, 0)
 
 	for _, info := range monitorInfoDetails {
 		monitor := newMonitor(info)
-		s.Monitors = append(s.Monitors, *monitor)
+		s.Monitors = append(s.Monitors, monitor)
 	}
 
 	return nil
 }
 
+// clearMonitorArea : Clears the monitor area (removes the buttons)
 func (s *SoftDark) clearMonitorArea() {
 	for _, value := range s.Monitors {
 		if value.Button != nil {
@@ -118,11 +176,11 @@ func (s *SoftDark) monitorAreaResized(monitorArea *gtk.Fixed) {
 		scaleFactor := s.calculateScaleFactor()
 
 		//fmt.Println("New size : ", allocation.GetHeight(), allocation.GetWidth())
-		fmt.Println("Scalefactor : ", scaleFactor)
-
+		fmt.Println("Scale factor : ", scaleFactor)
 	}
 }
 
+// allocationHasChanged : Allocation has changed signal handler
 func (s *SoftDark) allocationHasChanged(allocation *gtk.Allocation) bool {
 	if s.LastAllocation == nil {
 		s.LastAllocation = allocation
