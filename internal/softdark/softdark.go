@@ -2,7 +2,6 @@ package softdark
 
 import (
 	"bytes"
-	"fmt"
 	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/gtk"
 	"github.com/hultan/softdark/internal/tools"
@@ -24,8 +23,6 @@ type SoftDark struct {
 func NewSoftDark(monitorArea *gtk.Fixed) *SoftDark {
 	softDark := new(SoftDark)
 	softDark.MonitorArea = monitorArea
-	_, err := softDark.MonitorArea.Connect("size_allocate", softDark.monitorAreaResized)
-	tools.ErrorCheckWithPanic(err, "Failed to connect size_allocate signal")
 	return softDark
 }
 
@@ -67,6 +64,8 @@ func (s *SoftDark) Init() {
 		} else {
 			button.SetImage(image)
 		}
+
+		_,_ = button.Connect("clicked", s.onButtonClicked, currentMonitor)
 	}
 
 	s.MonitorArea.ShowAll()
@@ -170,25 +169,10 @@ func (s *SoftDark) clearMonitorArea() {
 	}
 }
 
-func (s *SoftDark) monitorAreaResized(monitorArea *gtk.Fixed) {
-	allocation := monitorArea.GetAllocation()
-	if s.allocationHasChanged(allocation) {
-		scaleFactor := s.calculateScaleFactor()
-
-		//fmt.Println("New size : ", allocation.GetHeight(), allocation.GetWidth())
-		fmt.Println("Scale factor : ", scaleFactor)
+func (s *SoftDark) onButtonClicked(button *gtk.Button, currentMonitor *Monitor) {
+	if currentMonitor.Form.IsVisible {
+		currentMonitor.Form.Hide()
+	} else {
+		currentMonitor.Form.Show(currentMonitor.Info)
 	}
-}
-
-// allocationHasChanged : Allocation has changed signal handler
-func (s *SoftDark) allocationHasChanged(allocation *gtk.Allocation) bool {
-	if s.LastAllocation == nil {
-		s.LastAllocation = allocation
-		return false
-	}
-	if allocation.GetHeight() != s.LastAllocation.GetHeight() || allocation.GetWidth() != s.LastAllocation.GetWidth() {
-		s.LastAllocation = allocation
-		return true
-	}
-	return false
 }

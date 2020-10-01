@@ -4,6 +4,7 @@ import (
 	"github.com/gotk3/gotk3/gtk"
 	"github.com/hultan/softdark/internal/tools"
 	gtkHelper "github.com/hultan/softteam-tools/pkg/gtk-helper"
+	"log"
 	"os"
 )
 
@@ -54,14 +55,15 @@ func (m *MainForm) OpenMainForm(app *gtk.Application) {
 	_, err = button.Connect("clicked", window.Close)
 	tools.ErrorCheckWithPanic(err, "Failed to connect the quit_button.clicked event")
 
-	// Refresh button
-	button, err = helper.GetButton("refresh_button")
-	tools.ErrorCheckWithPanic(err, "Failed to find refresh_button")
-	_, err = button.Connect("clicked", m.SoftDark.Init)
-	tools.ErrorCheckWithPanic(err, "Failed to connect the quit_button.clicked event")
+	// Create CSS provider
+	provider, _ := gtk.CssProviderNew()
+	if err := provider.LoadFromPath(tools.GetResourcePath("../assets", "softdark.css")); err != nil {
+		log.Println(err)
+	}
 
-	//_, err = window.Connect("size_allocate", m.onWindowResize)
-	//tools.ErrorCheckWithPanic(err, "Failed to connect size allocate signal")
+	// Set CSS provider
+	context, _ := monitorArea.GetStyleContext()
+	context.AddProvider(provider, gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
 	// Show the main window
 	window.ShowAll()

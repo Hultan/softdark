@@ -6,8 +6,9 @@ import (
 )
 
 type Monitor struct {
-	Button *gtk.Button
-	Info   softmonitorInfo.MonitorInfo
+	Button   *gtk.Button
+	Info     softmonitorInfo.MonitorInfo
+	Form     DarkForm
 }
 
 func newMonitor(info softmonitorInfo.MonitorInfo) *Monitor {
