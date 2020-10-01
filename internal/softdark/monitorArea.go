@@ -13,11 +13,11 @@ import (
 )
 
 const buttonImageMargin = 8
-const buttonPadding = 5
+const buttonPadding = 6
+const buttonPaddingLeft = 5
 
 type MonitorArea struct {
 	Area *gtk.Fixed
-	// TODO : Replace with map???
 	Monitors       []*Monitor
 	LastAllocation *gtk.Allocation
 }
@@ -36,8 +36,10 @@ func (s *MonitorArea) Init() {
 	err := s.refreshMonitorInfo()
 	tools.ErrorCheckWithPanic(err, "SoftDark.RefreshMonitorInfo() failed")
 
+	// Calculate scale factor based on window size
 	scaleFactor := s.calculateScaleFactor()
 
+	// Sort the monitors based on its left position
 	sort.Slice(s.Monitors, func (i,j int) bool {
 		if s.Monitors[i].Info.Left < s.Monitors[j].Info.Left {
 			return true
@@ -46,7 +48,6 @@ func (s *MonitorArea) Init() {
 	})
 
 	var padding = 0
-
 	for i := 0; i < len(s.Monitors); i++ {
 		currentMonitor := s.Monitors[i]
 
@@ -61,12 +62,10 @@ func (s *MonitorArea) Init() {
 		height := int(float64(currentMonitor.Info.Height)/scaleFactor)
 		left := int(float64(currentMonitor.Info.Left)/scaleFactor)
 		top := int(float64(currentMonitor.Info.Top)/scaleFactor)
-		//fmt.Printf("Placing button at (%v,%v), size (%v,%v)\n", top, left, height, width)
 
-		// Set button size
+		// Set button size and position on monitor area
 		button.SetSizeRequest(width, height)
-		// Place button on MonitorArea
-		s.Area.Put(button, left + padding, top)
+		s.Area.Put(button, left + padding + buttonPaddingLeft, top)
 
 		// Add a screenshot to the button
 		image, err := s.getScreenShot(i,width, height)
@@ -76,8 +75,10 @@ func (s *MonitorArea) Init() {
 			button.SetImage(image)
 		}
 
+		// Connect click event
 		_,_ = button.Connect("clicked", s.onButtonClicked, currentMonitor)
 
+		// Increase padding for next button
 		padding += buttonPadding
 	}
 
@@ -123,11 +124,14 @@ func (s *MonitorArea) getScreenShot(monitor, width, height int) (*gtk.Image, err
 
 // calculateScaleFactor : Calculate the current scale factor
 func (s *MonitorArea) calculateScaleFactor() float64 {
+	// Get total size for all monitors
 	height, width := s.getSize(s.Monitors)
-
+	// Get window size
 	allocation := s.Area.GetAllocation()
+
+	//
 	heightFactor := float64(height) / float64(allocation.GetHeight())
-	widthFactor := float64(width) / float64(allocation.GetWidth() - 2*buttonPadding)
+	widthFactor := float64(width) / float64(allocation.GetWidth())
 
 	factor := widthFactor
 	if heightFactor > widthFactor {

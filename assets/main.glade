@@ -20,7 +20,7 @@
   <object class="GtkApplicationWindow" id="main_window">
     <property name="can_focus">False</property>
     <property name="resizable">False</property>
-    <property name="default_width">640</property>
+    <property name="default_width">597</property>
     <property name="default_height">170</property>
     <child>
       <object class="GtkBox">
@@ -31,13 +31,16 @@
           <object class="GtkEventBox" id="event_box">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="margin_start">5</property>
+            <property name="margin_end">5</property>
+            <property name="margin_top">5</property>
+            <property name="margin_bottom">5</property>
             <child>
               <object class="GtkFixed" id="monitor_area">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="margin_start">5</property>
-                <property name="margin_end">5</property>
                 <property name="margin_top">6</property>
+                <property name="margin_bottom">5</property>
               </object>
             </child>
             <style>

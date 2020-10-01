@@ -11,7 +11,7 @@ import (
 type MainForm struct {
 	Window         *gtk.ApplicationWindow
 	LastAllocation *gtk.Allocation
-	SoftDark       *MonitorArea
+	Area           *MonitorArea
 }
 
 // NewMainForm : Creates a new MainForm object
@@ -47,7 +47,7 @@ func (m *MainForm) OpenMainForm(app *gtk.Application) {
 	// Get fixed area
 	monitorArea, err := helper.GetFixed("monitor_area")
 	tools.ErrorCheckWithPanic(err, "Failed to get monitor_area")
-	m.SoftDark = NewSoftDark(monitorArea)
+	m.Area = NewSoftDark(monitorArea)
 
 	// Since gtk.Fixed does not have it's own window
 	// you cannot set a background color on it, so we
@@ -58,7 +58,7 @@ func (m *MainForm) OpenMainForm(app *gtk.Application) {
 	// Quit button
 	button, err := helper.GetButton("quit_button")
 	tools.ErrorCheckWithPanic(err, "Failed to find quit_button")
-	_, err = button.Connect("clicked", window.Close)
+	_, err = button.Connect("clicked", m.onWindowClose)
 	tools.ErrorCheckWithPanic(err, "Failed to connect the quit_button.clicked event")
 
 	// Create CSS provider
@@ -74,5 +74,26 @@ func (m *MainForm) OpenMainForm(app *gtk.Application) {
 	// Show the main window
 	window.ShowAll()
 
-	m.SoftDark.Init()
+	m.Area.Init()
+}
+
+func (m *MainForm) onWindowClose() {
+	// Close and destroy all monitor windows
+	for _, monitor := range m.Area.Monitors {
+		// Check if the monitor has a window
+		if monitor.Form.Window == nil {
+			continue
+		}
+
+		// Hide the window, if visible
+		if monitor.Form.IsVisible {
+			monitor.Form.Hide()
+		}
+
+		// Destroy the window
+		monitor.Form.Window.Destroy()
+	}
+
+	// Close main form
+	m.Window.Close()
 }
