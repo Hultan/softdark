@@ -11,7 +11,7 @@ import (
 type MainForm struct {
 	Window         *gtk.ApplicationWindow
 	LastAllocation *gtk.Allocation
-	SoftDark       *SoftDark
+	SoftDark       *MonitorArea
 }
 
 // NewMainForm : Creates a new MainForm object
@@ -49,6 +49,12 @@ func (m *MainForm) OpenMainForm(app *gtk.Application) {
 	tools.ErrorCheckWithPanic(err, "Failed to get monitor_area")
 	m.SoftDark = NewSoftDark(monitorArea)
 
+	// Since gtk.Fixed does not have it's own window
+	// you cannot set a background color on it, so we
+	// surround it with an EventBox and style the event box
+	eventBox, err := helper.GetEventBox("event_box")
+	tools.ErrorCheckWithPanic(err, "Failed to get event_box")
+
 	// Quit button
 	button, err := helper.GetButton("quit_button")
 	tools.ErrorCheckWithPanic(err, "Failed to find quit_button")
@@ -62,7 +68,7 @@ func (m *MainForm) OpenMainForm(app *gtk.Application) {
 	}
 
 	// Set CSS provider
-	context, _ := monitorArea.GetStyleContext()
+	context, _ := eventBox.GetStyleContext()
 	context.AddProvider(provider, gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
 	// Show the main window

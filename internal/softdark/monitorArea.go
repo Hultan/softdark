@@ -9,24 +9,26 @@ import (
 	"github.com/kbinani/screenshot"
 	"image/png"
 	"log"
+	"sort"
 )
 
 const buttonImageMargin = 8
+const buttonPadding = 5
 
-type SoftDark struct {
-	MonitorArea *gtk.Fixed
+type MonitorArea struct {
+	Area *gtk.Fixed
 	// TODO : Replace with map???
 	Monitors       []*Monitor
 	LastAllocation *gtk.Allocation
 }
 
-func NewSoftDark(monitorArea *gtk.Fixed) *SoftDark {
-	softDark := new(SoftDark)
-	softDark.MonitorArea = monitorArea
-	return softDark
+func NewSoftDark(area *gtk.Fixed) *MonitorArea {
+	monitorArea := new(MonitorArea)
+	monitorArea.Area = area
+	return monitorArea
 }
 
-func (s *SoftDark) Init() {
+func (s *MonitorArea) Init() {
 	// Clear previous buttons from MonitorArea
 	s.clearMonitorArea()
 
@@ -35,6 +37,15 @@ func (s *SoftDark) Init() {
 	tools.ErrorCheckWithPanic(err, "SoftDark.RefreshMonitorInfo() failed")
 
 	scaleFactor := s.calculateScaleFactor()
+
+	sort.Slice(s.Monitors, func (i,j int) bool {
+		if s.Monitors[i].Info.Left < s.Monitors[j].Info.Left {
+			return true
+		}
+		return false
+	})
+
+	var padding = 0
 
 	for i := 0; i < len(s.Monitors); i++ {
 		currentMonitor := s.Monitors[i]
@@ -55,7 +66,7 @@ func (s *SoftDark) Init() {
 		// Set button size
 		button.SetSizeRequest(width, height)
 		// Place button on MonitorArea
-		s.MonitorArea.Put(button, left, top)
+		s.Area.Put(button, left + padding, top)
 
 		// Add a screenshot to the button
 		image, err := s.getScreenShot(i,width, height)
@@ -66,13 +77,15 @@ func (s *SoftDark) Init() {
 		}
 
 		_,_ = button.Connect("clicked", s.onButtonClicked, currentMonitor)
+
+		padding += buttonPadding
 	}
 
-	s.MonitorArea.ShowAll()
+	s.Area.ShowAll()
 }
 
 // getScreenShot : Get a screenshot of a monitor, with the specified width/height
-func (s *SoftDark) getScreenShot(monitor, width, height int) (*gtk.Image, error) {
+func (s *MonitorArea) getScreenShot(monitor, width, height int) (*gtk.Image, error) {
 	// Get screenshot of monitor
 	screenImage, err := screenshot.CaptureDisplay(monitor)
 	if err != nil {
@@ -109,11 +122,12 @@ func (s *SoftDark) getScreenShot(monitor, width, height int) (*gtk.Image, error)
 }
 
 // calculateScaleFactor : Calculate the current scale factor
-func (s *SoftDark) calculateScaleFactor() float64 {
+func (s *MonitorArea) calculateScaleFactor() float64 {
 	height, width := s.getSize(s.Monitors)
-	allocation := s.MonitorArea.GetAllocation()
+
+	allocation := s.Area.GetAllocation()
 	heightFactor := float64(height) / float64(allocation.GetHeight())
-	widthFactor := float64(width) / float64(allocation.GetWidth())
+	widthFactor := float64(width) / float64(allocation.GetWidth() - 2*buttonPadding)
 
 	factor := widthFactor
 	if heightFactor > widthFactor {
@@ -126,7 +140,7 @@ func (s *SoftDark) calculateScaleFactor() float64 {
 }
 
 // getSize : Get the maximum size of all the monitors
-func (s *SoftDark) getSize(monitors []*Monitor) (height, width int) {
+func (s *MonitorArea) getSize(monitors []*Monitor) (height, width int) {
 	maxWidth, maxHeight := 0, 0
 
 	for _, value := range monitors {
@@ -142,7 +156,7 @@ func (s *SoftDark) getSize(monitors []*Monitor) (height, width int) {
 }
 
 // refreshMonitorInfo : Refreshes the monitor hardware info
-func (s *SoftDark) refreshMonitorInfo() error {
+func (s *MonitorArea) refreshMonitorInfo() error {
 	// Get monitor hardware info
 	monitorInfoTool := softmonitorInfo.NewSoftMonitorInfo()
 	monitorInfoDetails, err := monitorInfoTool.GetMonitorInfo()
@@ -161,15 +175,15 @@ func (s *SoftDark) refreshMonitorInfo() error {
 }
 
 // clearMonitorArea : Clears the monitor area (removes the buttons)
-func (s *SoftDark) clearMonitorArea() {
+func (s *MonitorArea) clearMonitorArea() {
 	for _, value := range s.Monitors {
 		if value.Button != nil {
-			s.MonitorArea.Remove(value.Button)
+			s.Area.Remove(value.Button)
 		}
 	}
 }
 
-func (s *SoftDark) onButtonClicked(button *gtk.Button, currentMonitor *Monitor) {
+func (s *MonitorArea) onButtonClicked(button *gtk.Button, currentMonitor *Monitor) {
 	if currentMonitor.Form.IsVisible {
 		currentMonitor.Form.Hide()
 	} else {
