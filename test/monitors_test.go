@@ -1,7 +1,7 @@
 package test
 
 import (
-	"github.com/hultan/softdark/pkg/softmonitorInfo"
+	"github.com/hultan/softdark/internal/softmonitorInfo"
 	"testing"
 )
 

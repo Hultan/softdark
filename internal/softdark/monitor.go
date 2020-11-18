@@ -2,13 +2,13 @@ package softdark
 
 import (
 	"github.com/gotk3/gotk3/gtk"
-	"github.com/hultan/softdark/pkg/softmonitorInfo"
+	"github.com/hultan/softdark/internal/softmonitorInfo"
 )
 
 type Monitor struct {
-	Button   *gtk.Button
-	Info     softmonitorInfo.MonitorInfo
-	Form     DarkForm
+	Button *gtk.Button
+	Info   softmonitorInfo.MonitorInfo
+	Form   DarkForm
 }
 
 func newMonitor(info softmonitorInfo.MonitorInfo) *Monitor {

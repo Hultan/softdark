@@ -2,8 +2,8 @@ package softdark
 
 import (
 	"github.com/gotk3/gotk3/gtk"
+	"github.com/hultan/softdark/internal/softmonitorInfo"
 	"github.com/hultan/softdark/internal/tools"
-	"github.com/hultan/softdark/pkg/softmonitorInfo"
 	gtkHelper "github.com/hultan/softteam-tools/pkg/gtk-helper"
 	"log"
 )

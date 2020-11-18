@@ -1,13 +1,10 @@
 package softdark
 
 import (
-	"bytes"
-	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/gtk"
+	"github.com/hultan/softdark/internal/screenShot"
+	"github.com/hultan/softdark/internal/softmonitorInfo"
 	"github.com/hultan/softdark/internal/tools"
-	"github.com/hultan/softdark/pkg/softmonitorInfo"
-	"github.com/kbinani/screenshot"
-	"image/png"
 	"log"
 	"sort"
 )
@@ -68,7 +65,8 @@ func (s *MonitorArea) Init() {
 		s.Area.Put(button, left + padding + buttonPaddingLeft, top)
 
 		// Add a screenshot to the button
-		image, err := s.getScreenShot(i,width, height)
+		screenshot := screenShot.NewScreenShot()
+		image, err := screenshot.GetScreenShot(i,width-buttonImageMargin*2, height-buttonImageMargin*2)
 		if err != nil {
 			log.Println(err)
 		} else {
@@ -83,43 +81,6 @@ func (s *MonitorArea) Init() {
 	}
 
 	s.Area.ShowAll()
-}
-
-// getScreenShot : Get a screenshot of a monitor, with the specified width/height
-func (s *MonitorArea) getScreenShot(monitor, width, height int) (*gtk.Image, error) {
-	// Get screenshot of monitor
-	screenImage, err := screenshot.CaptureDisplay(monitor)
-	if err != nil {
-		return nil, err
-	}
-	// Convert screenshot to byte array
-	var b bytes.Buffer
-	err = png.Encode(&b, screenImage)
-	if err != nil {
-		return nil, err
-	}
-	// Create a PixBufLoader
-	loader, err := gdk.PixbufLoaderNew()
-	if err != nil {
-		return nil, err
-	}
-	// Write byte array to PixBufLoader
-	imagePixBuf, err := loader.WriteAndReturnPixbuf(b.Bytes())
-	if err != nil {
-		return nil, err
-	}
-	// Scale image down to a reasonable size
-	scaledPixbuf, err := imagePixBuf.ScaleSimple(width-buttonImageMargin*2, height-buttonImageMargin*2, gdk.INTERP_HYPER)
-	if err != nil {
-		return nil, err
-	}
-	// Create an gtk.Image from the PixBuf
-	image, err := gtk.ImageNewFromPixbuf(scaledPixbuf)
-	if err != nil {
-		return nil, err
-	}
-
-	return image, nil
 }
 
 // calculateScaleFactor : Calculate the current scale factor
