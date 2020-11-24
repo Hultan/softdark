@@ -14,7 +14,7 @@ const buttonPadding = 6
 const buttonPaddingLeft = 5
 
 type MonitorArea struct {
-	Area *gtk.Fixed
+	Area           *gtk.Fixed
 	Monitors       []*Monitor
 	LastAllocation *gtk.Allocation
 }
@@ -37,7 +37,7 @@ func (s *MonitorArea) Init() {
 	scaleFactor := s.calculateScaleFactor()
 
 	// Sort the monitors based on its left position
-	sort.Slice(s.Monitors, func (i,j int) bool {
+	sort.Slice(s.Monitors, func(i, j int) bool {
 		if s.Monitors[i].Info.Left < s.Monitors[j].Info.Left {
 			return true
 		}
@@ -55,18 +55,18 @@ func (s *MonitorArea) Init() {
 		currentMonitor.Button = button
 
 		// Calculate monitor button size & position
-		width := int(float64(currentMonitor.Info.Width)/scaleFactor)
-		height := int(float64(currentMonitor.Info.Height)/scaleFactor)
-		left := int(float64(currentMonitor.Info.Left)/scaleFactor)
-		top := int(float64(currentMonitor.Info.Top)/scaleFactor)
+		width := int(float64(currentMonitor.Info.Width) / scaleFactor)
+		height := int(float64(currentMonitor.Info.Height) / scaleFactor)
+		left := int(float64(currentMonitor.Info.Left) / scaleFactor)
+		top := int(float64(currentMonitor.Info.Top) / scaleFactor)
 
 		// Set button size and position on monitor area
 		button.SetSizeRequest(width, height)
-		s.Area.Put(button, left + padding + buttonPaddingLeft, top)
+		s.Area.Put(button, left+padding+buttonPaddingLeft, top)
 
 		// Add a screenshot to the button
 		screenshot := screenShot.NewScreenShot()
-		image, err := screenshot.GetScreenShot(i,width-buttonImageMargin*2, height-buttonImageMargin*2)
+		image, err := screenshot.GetScreenShot(currentMonitor.Info.Number, width-buttonImageMargin*2, height-buttonImageMargin*2)
 		if err != nil {
 			log.Println(err)
 		} else {
@@ -74,7 +74,7 @@ func (s *MonitorArea) Init() {
 		}
 
 		// Connect click event
-		_,_ = button.Connect("clicked", s.onButtonClicked, currentMonitor)
+		_, _ = button.Connect("clicked", s.onButtonClicked, currentMonitor)
 
 		// Increase padding for next button
 		padding += buttonPadding
@@ -148,7 +148,7 @@ func (s *MonitorArea) clearMonitorArea() {
 	}
 }
 
-func (s *MonitorArea) onButtonClicked(button *gtk.Button, currentMonitor *Monitor) {
+func (s *MonitorArea) onButtonClicked(_, currentMonitor *Monitor) {
 	if currentMonitor.Form.IsVisible {
 		currentMonitor.Form.Hide()
 	} else {
