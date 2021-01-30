@@ -15,7 +15,16 @@ func ErrorCheckWithPanic(err error, message string) {
 
 // GetResourcePath : Gets the path to a resource file
 func GetResourcePath(directory, file string) string {
-	return path.Join(GetExecutablePath(), directory, file)
+	dir := path.Join(GetExecutablePath(), directory, file)
+	if checkFileExists(dir) {
+		return dir
+	}
+	dir = path.Join(GetExecutablePath(),"..", directory, file)
+	if checkFileExists(dir) {
+		return dir
+	}
+
+	return ""
 }
 
 // GetExecutablePath : Returns the path of the executable
@@ -25,4 +34,11 @@ func GetExecutablePath() string {
 		return ""
 	}
 	return filepath.Dir(executable)
+}
+
+func checkFileExists(filePath string) bool {
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		return false
+	}
+	return true
 }

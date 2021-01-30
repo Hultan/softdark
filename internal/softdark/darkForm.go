@@ -15,7 +15,7 @@ type DarkForm struct {
 
 func (d *DarkForm) init(info softmonitorInfo.MonitorInfo) {
 	// Create a new gtk helper
-	builder, err := gtk.BuilderNewFromFile(tools.GetResourcePath("../assets", "main.glade"))
+	builder, err := gtk.BuilderNewFromFile(tools.GetResourcePath("assets", "main.glade"))
 	tools.ErrorCheckWithPanic(err, "Failed to create builder")
 	helper := gtkHelper.GtkHelperNew(builder)
 
@@ -35,7 +35,7 @@ func (d *DarkForm) init(info softmonitorInfo.MonitorInfo) {
 
 	// Create CSS provider
 	provider, _ := gtk.CssProviderNew()
-	if err := provider.LoadFromPath(tools.GetResourcePath("../assets", "softdark.css")); err != nil {
+	if err := provider.LoadFromPath(tools.GetResourcePath("assets", "softdark.css")); err != nil {
 		log.Println(err)
 	}
 

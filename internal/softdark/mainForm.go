@@ -14,10 +14,11 @@ type MainForm struct {
 	Area           *MonitorArea
 }
 
+var timeoutContinue = true
+
 // NewMainForm : Creates a new MainForm object
 func NewMainForm() *MainForm {
-	mainForm := new(MainForm)
-	return mainForm
+	return new(MainForm)
 }
 
 // OpenMainForm : Opens the MainForm window
@@ -26,7 +27,7 @@ func (m *MainForm) OpenMainForm(app *gtk.Application) {
 	gtk.Init(&os.Args)
 
 	// Create a new gtk helper
-	builder, err := gtk.BuilderNewFromFile(tools.GetResourcePath("../assets", "main.glade"))
+	builder, err := gtk.BuilderNewFromFile(tools.GetResourcePath("assets", "main.glade"))
 	tools.ErrorCheckWithPanic(err, "Failed to create builder")
 	helper := gtkHelper.GtkHelperNew(builder)
 
@@ -63,7 +64,7 @@ func (m *MainForm) OpenMainForm(app *gtk.Application) {
 
 	// Create CSS provider
 	provider, _ := gtk.CssProviderNew()
-	if err := provider.LoadFromPath(tools.GetResourcePath("../assets", "softdark.css")); err != nil {
+	if err := provider.LoadFromPath(tools.GetResourcePath("assets", "softdark.css")); err != nil {
 		log.Println(err)
 	}
 
@@ -75,6 +76,8 @@ func (m *MainForm) OpenMainForm(app *gtk.Application) {
 	window.ShowAll()
 
 	m.Area.Init()
+
+	gtk.Main()
 }
 
 func (m *MainForm) onWindowClose() {
@@ -96,4 +99,5 @@ func (m *MainForm) onWindowClose() {
 
 	// Close main form
 	m.Window.Close()
+	gtk.MainQuit()
 }

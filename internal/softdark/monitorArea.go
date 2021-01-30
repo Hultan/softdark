@@ -64,15 +64,6 @@ func (s *MonitorArea) Init() {
 		button.SetSizeRequest(width, height)
 		s.Area.Put(button, left+padding+buttonPaddingLeft, top)
 
-		// Add a screenshot to the button
-		screenshot := screenShot.NewScreenShot()
-		image, err := screenshot.GetScreenShot(currentMonitor.Info.Number, width-buttonImageMargin*2, height-buttonImageMargin*2)
-		if err != nil {
-			log.Println(err)
-		} else {
-			button.SetImage(image)
-		}
-
 		// Connect click event
 		_, _ = button.Connect("clicked", s.onButtonClicked, currentMonitor)
 
@@ -80,6 +71,7 @@ func (s *MonitorArea) Init() {
 		padding += buttonPadding
 	}
 
+	s.updateScreenshots()
 	s.Area.ShowAll()
 }
 
@@ -148,10 +140,32 @@ func (s *MonitorArea) clearMonitorArea() {
 	}
 }
 
-func (s *MonitorArea) onButtonClicked(_, currentMonitor *Monitor) {
+func (s *MonitorArea) onButtonClicked(button *gtk.Button, currentMonitor *Monitor) {
 	if currentMonitor.Form.IsVisible {
 		currentMonitor.Form.Hide()
 	} else {
 		currentMonitor.Form.Show(currentMonitor.Info)
+	}
+}
+
+func (s *MonitorArea) updateScreenshots() {
+	// Calculate scale factor based on window size
+	scaleFactor := s.calculateScaleFactor()
+
+	for i := 0; i < len(s.Monitors); i++ {
+		currentMonitor := s.Monitors[i]
+
+		// Calculate monitor button size & position
+		width := int(float64(currentMonitor.Info.Width) / scaleFactor)
+		height := int(float64(currentMonitor.Info.Height) / scaleFactor)
+
+		// Add a screenshot to the button
+		screenshot := screenShot.NewScreenShot()
+		image, err := screenshot.GetScreenShot(currentMonitor.Info.Number, width-buttonImageMargin*2, height-buttonImageMargin*2)
+		if err != nil {
+			log.Println(err)
+		} else {
+			currentMonitor.Button.SetImage(image)
+		}
 	}
 }

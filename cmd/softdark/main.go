@@ -28,5 +28,6 @@ func main() {
 	}
 
 	// Start the application (and exit when it is done)
-	os.Exit(application.Run(nil))
+	code := application.Run(nil)
+	os.Exit(code)
 }
