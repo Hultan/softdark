@@ -3,7 +3,6 @@ package softdark
 import (
 	"github.com/gotk3/gotk3/gtk"
 	"github.com/hultan/softdark/internal/tools"
-	gtkHelper "github.com/hultan/softteam-tools/pkg/gtk-helper"
 	"log"
 	"os"
 )
@@ -26,39 +25,31 @@ func (m *MainForm) OpenMainForm(app *gtk.Application) {
 	// Initialize gtk
 	gtk.Init(&os.Args)
 
-	// Create a new gtk helper
-	builder, err := gtk.BuilderNewFromFile(tools.GetResourcePath("assets", "main.glade"))
-	tools.ErrorCheckWithPanic(err, "Failed to create builder")
-	helper := gtkHelper.GtkHelperNew(builder)
+	builder := newSoftBuilder("main.glade")
 
 	// Get the main window from the glade file
-	window, err := helper.GetApplicationWindow("main_window")
-	tools.ErrorCheckWithPanic(err, "Failed to find main_window")
-
-	m.Window = window
+	m.Window = builder.getObject("main_window").(*gtk.ApplicationWindow)
 
 	// Set up main window
-	window.SetApplication(app)
-	window.SetTitle("SoftDark")
+	m.Window.SetApplication(app)
+	m.Window.SetTitle("SoftDark")
 
 	// Hook up the destroy event
-	_, err = window.Connect("destroy", window.Close)
+	_, err := m.Window.Connect("destroy", m.Window.Close)
 	tools.ErrorCheckWithPanic(err, "Failed to connect the mainForm.destroy event")
 
 	// Get fixed area
-	monitorArea, err := helper.GetFixed("monitor_area")
-	tools.ErrorCheckWithPanic(err, "Failed to get monitor_area")
+	monitorArea := builder.getObject("monitor_area").(*gtk.Fixed)
 	m.Area = NewSoftDark(monitorArea)
 
+	// TODO : 2021-05-14 : gtk.Fixed have a window if you use the SetHasWindow-function
 	// Since gtk.Fixed does not have it's own window
 	// you cannot set a background color on it, so we
 	// surround it with an EventBox and style the event box
-	eventBox, err := helper.GetEventBox("event_box")
-	tools.ErrorCheckWithPanic(err, "Failed to get event_box")
+	eventBox := builder.getObject("event_box").(*gtk.EventBox)
 
 	// Quit button
-	button, err := helper.GetButton("quit_button")
-	tools.ErrorCheckWithPanic(err, "Failed to find quit_button")
+	button := builder.getObject("quit_button").(*gtk.Button)
 	_, err = button.Connect("clicked", m.onWindowClose)
 	tools.ErrorCheckWithPanic(err, "Failed to connect the quit_button.clicked event")
 
@@ -73,7 +64,7 @@ func (m *MainForm) OpenMainForm(app *gtk.Application) {
 	context.AddProvider(provider, gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
 	// Show the main window
-	window.ShowAll()
+	m.Window.ShowAll()
 
 	m.Area.Init()
 
