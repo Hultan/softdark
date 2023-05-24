@@ -16,12 +16,16 @@ type DarkForm struct {
 func (d *DarkForm) init(info softmonitorInfo.MonitorInfo) {
 	// Create a new gtk helper
 	builder, err := gtk.BuilderNewFromFile(tools.GetResourcePath("assets", "main.glade"))
-	tools.ErrorCheckWithPanic(err, "Failed to create builder")
+	if err != nil {
+		log.Fatal("Failed to create builder : " + err.Error())
+	}
 	helper := gtkHelper.GtkHelperNew(builder)
 
 	// Get the main window from the glade file
 	window, err := helper.GetWindow("dark_window")
-	tools.ErrorCheckWithPanic(err, "Failed to find dark_window")
+	if err != nil {
+		log.Fatal("Failed to find dark_window : " + err.Error())
+	}
 
 	d.Window = window
 

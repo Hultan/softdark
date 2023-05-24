@@ -4,7 +4,6 @@ import (
 	"github.com/gotk3/gotk3/gtk"
 	"github.com/hultan/softdark/internal/screenShot"
 	"github.com/hultan/softdark/internal/softmonitorInfo"
-	"github.com/hultan/softdark/internal/tools"
 	"log"
 	"sort"
 )
@@ -33,7 +32,9 @@ func (s *MonitorArea) Init() {
 
 	// Refresh SoftDark monitor info
 	err := s.refreshMonitorInfo()
-	tools.ErrorCheckWithPanic(err, "SoftDark.RefreshMonitorInfo() failed")
+	if err != nil {
+		log.Fatal("SoftDark.RefreshMonitorInfo() failed : " + err.Error())
+	}
 
 	// Calculate scale factor based on window size
 	scaleFactor := s.calculateScaleFactor()
@@ -54,7 +55,10 @@ func (s *MonitorArea) Init() {
 
 		// Create a new button
 		button, err := gtk.ButtonNew()
-		tools.ErrorCheckWithPanic(err, "failed to add button")
+		if err != nil {
+			log.Fatal("failed to add button : " + err.Error())
+		}
+
 		// Store pointer to button
 		currentMonitor.Button = button
 		buttonMonitor[button] = currentMonitor
