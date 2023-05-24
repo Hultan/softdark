@@ -13,6 +13,8 @@ const buttonImageMargin = 8
 const buttonPadding = 6
 const buttonPaddingLeft = 5
 
+var buttonMonitor map[*gtk.Button]*Monitor
+
 type MonitorArea struct {
 	Area           *gtk.Fixed
 	Monitors       []*Monitor
@@ -44,6 +46,8 @@ func (s *MonitorArea) Init() {
 		return false
 	})
 
+	buttonMonitor = make(map[*gtk.Button]*Monitor)
+
 	var padding = 0
 	for i := 0; i < len(s.Monitors); i++ {
 		currentMonitor := s.Monitors[i]
@@ -53,6 +57,7 @@ func (s *MonitorArea) Init() {
 		tools.ErrorCheckWithPanic(err, "failed to add button")
 		// Store pointer to button
 		currentMonitor.Button = button
+		buttonMonitor[button] = currentMonitor
 
 		// Calculate monitor button size & position
 		width := int(float64(currentMonitor.Info.Width) / scaleFactor)
@@ -65,7 +70,7 @@ func (s *MonitorArea) Init() {
 		s.Area.Put(button, left+padding+buttonPaddingLeft, top)
 
 		// Connect click event
-		_, _ = button.Connect("clicked", s.onButtonClicked, currentMonitor)
+		_ = button.Connect("clicked", s.onButtonClicked)
 
 		// Increase padding for next button
 		padding += buttonPadding
@@ -140,11 +145,12 @@ func (s *MonitorArea) clearMonitorArea() {
 	}
 }
 
-func (s *MonitorArea) onButtonClicked(button *gtk.Button, currentMonitor *Monitor) {
-	if currentMonitor.Form.IsVisible {
-		currentMonitor.Form.Hide()
+func (s *MonitorArea) onButtonClicked(button *gtk.Button) {
+	m := buttonMonitor[button]
+	if m.Form.IsVisible {
+		m.Form.Hide()
 	} else {
-		currentMonitor.Form.Show(currentMonitor.Info)
+		m.Form.Show(m.Info)
 	}
 }
 

@@ -30,8 +30,7 @@ func (d *DarkForm) init(info softmonitorInfo.MonitorInfo) {
 	window.Fullscreen()
 
 	// Hook up the destroy event
-	_, err = window.Connect("button-press-event", d.Hide)
-	tools.ErrorCheckWithPanic(err, "Failed to connect the dark_window.Close() event")
+	_ = window.Connect("button-press-event", d.Hide)
 
 	// Create CSS provider
 	provider, _ := gtk.CssProviderNew()

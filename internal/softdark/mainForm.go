@@ -13,8 +13,6 @@ type MainForm struct {
 	Area           *MonitorArea
 }
 
-var timeoutContinue = true
-
 // NewMainForm : Creates a new MainForm object
 func NewMainForm() *MainForm {
 	return new(MainForm)
@@ -35,8 +33,7 @@ func (m *MainForm) OpenMainForm(app *gtk.Application) {
 	m.Window.SetTitle("SoftDark")
 
 	// Hook up the destroy event
-	_, err := m.Window.Connect("destroy", m.Window.Close)
-	tools.ErrorCheckWithPanic(err, "Failed to connect the mainForm.destroy event")
+	_ = m.Window.Connect("destroy", m.Window.Close)
 
 	// Get fixed area
 	monitorArea := builder.getObject("monitor_area").(*gtk.Fixed)
@@ -50,8 +47,7 @@ func (m *MainForm) OpenMainForm(app *gtk.Application) {
 
 	// Quit button
 	button := builder.getObject("quit_button").(*gtk.Button)
-	_, err = button.Connect("clicked", m.onWindowClose)
-	tools.ErrorCheckWithPanic(err, "Failed to connect the quit_button.clicked event")
+	_ = button.Connect("clicked", m.onWindowClose)
 
 	// Create CSS provider
 	provider, _ := gtk.CssProviderNew()

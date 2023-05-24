@@ -9,23 +9,20 @@ import (
 )
 
 const (
-	ApplicationId = "se.softteam.softdark"
+	ApplicationId    = "se.softteam.softdark"
 	ApplicationFlags = glib.APPLICATION_FLAGS_NONE
 )
 
 func main() {
 	// Create a new application
 	application, err := gtk.ApplicationNew(ApplicationId, ApplicationFlags)
-	if err!=nil {
+	if err != nil {
 		panic("Failed to create GTK Application")
 	}
 
 	mainForm := softdark.NewMainForm()
 	// Hook up the activate event handler
-	_, err=application.Connect("activate", mainForm.OpenMainForm)
-	if err!=nil {
-		panic("Failed to connect Application.Activate event")
-	}
+	_ = application.Connect("activate", mainForm.OpenMainForm)
 
 	// Start the application (and exit when it is done)
 	code := application.Run(nil)
