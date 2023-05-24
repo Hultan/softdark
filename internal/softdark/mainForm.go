@@ -1,11 +1,14 @@
 package softdark
 
 import (
+	_ "embed"
 	"github.com/gotk3/gotk3/gtk"
-	"github.com/hultan/softdark/internal/tools"
 	"log"
 	"os"
 )
+
+//go:embed assets/softdark.css
+var css string
 
 type MainForm struct {
 	Window         *gtk.ApplicationWindow
@@ -51,7 +54,7 @@ func (m *MainForm) OpenMainForm(app *gtk.Application) {
 
 	// Create CSS provider
 	provider, _ := gtk.CssProviderNew()
-	if err := provider.LoadFromPath(tools.GetResourcePath("assets", "softdark.css")); err != nil {
+	if err := provider.LoadFromData(css); err != nil {
 		log.Println(err)
 	}
 

@@ -1,12 +1,16 @@
 package softdark
 
 import (
+	_ "embed"
 	"github.com/gotk3/gotk3/gtk"
 	"github.com/hultan/softdark/internal/softmonitorInfo"
 	"github.com/hultan/softdark/internal/tools"
 	gtkHelper "github.com/hultan/softteam-tools/pkg/gtk-helper"
 	"log"
 )
+
+//go:embed assets/main.glade
+var mainGlade string
 
 type DarkForm struct {
 	Window    *gtk.Window
@@ -15,7 +19,7 @@ type DarkForm struct {
 
 func (d *DarkForm) init(info softmonitorInfo.MonitorInfo) {
 	// Create a new gtk helper
-	builder, err := gtk.BuilderNewFromFile(tools.GetResourcePath("assets", "main.glade"))
+	builder, err := gtk.BuilderNewFromString(mainGlade)
 	if err != nil {
 		log.Fatal("Failed to create builder : " + err.Error())
 	}
