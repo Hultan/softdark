@@ -1,3 +1,3 @@
 package softdark
 
-const applicationVersion = "1.1.0"
+const applicationVersion = "2.0.0"
