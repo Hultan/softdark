@@ -9,24 +9,20 @@ type SoftBuilder struct {
 	builder *gtk.Builder
 }
 
-func newSoftBuilder(fileName string) *SoftBuilder {
-	builder := new(SoftBuilder)
-	builder.createBuilder(fileName)
-	return builder
-}
-
-func (s *SoftBuilder) createBuilder(gladeFileName string) {
+func newSoftBuilder(gladeFileName string) *SoftBuilder {
+	builder := &SoftBuilder{}
 	gladePath, err := getResourcePath(gladeFileName)
 	if err != nil {
 		panic(err)
 	}
 
-	builder, err := gtk.BuilderNewFromFile(gladePath)
+	b, err := gtk.BuilderNewFromFile(gladePath)
 	if err != nil {
 		panic(err)
 	}
+	builder.builder = b
 
-	s.builder = builder
+	return builder
 }
 
 func (s *SoftBuilder) getObject(name string) glib.IObject {
@@ -37,4 +33,3 @@ func (s *SoftBuilder) getObject(name string) glib.IObject {
 
 	return obj
 }
-

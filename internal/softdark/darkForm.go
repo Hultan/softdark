@@ -3,7 +3,7 @@ package softdark
 import (
 	_ "embed"
 	"github.com/gotk3/gotk3/gtk"
-	"github.com/hultan/softdark/internal/softmonitorInfo"
+	"github.com/hultan/softdark/internal/monitorInfo"
 	"github.com/hultan/softdark/internal/tools"
 	gtkHelper "github.com/hultan/softteam-tools/pkg/gtk-helper"
 	"log"
@@ -17,7 +17,7 @@ type DarkForm struct {
 	IsVisible bool
 }
 
-func (d *DarkForm) init(info softmonitorInfo.MonitorInfo) {
+func (d *DarkForm) init(info monitorInfo.MonitorInfo) {
 	// Create a new gtk helper
 	builder, err := gtk.BuilderNewFromString(mainGlade)
 	if err != nil {
@@ -51,7 +51,7 @@ func (d *DarkForm) init(info softmonitorInfo.MonitorInfo) {
 	context.AddProvider(provider, gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 }
 
-func (d *DarkForm) Show(info softmonitorInfo.MonitorInfo) {
+func (d *DarkForm) Show(info monitorInfo.MonitorInfo) {
 	if d.Window == nil {
 		d.init(info)
 	}

@@ -2,8 +2,8 @@ package softdark
 
 import (
 	"github.com/gotk3/gotk3/gtk"
+	"github.com/hultan/softdark/internal/monitorInfo"
 	"github.com/hultan/softdark/internal/screenShot"
-	"github.com/hultan/softdark/internal/softmonitorInfo"
 	"log"
 	"sort"
 )
@@ -12,7 +12,11 @@ const buttonImageMargin = 8
 const buttonPadding = 6
 const buttonPaddingLeft = 5
 
-var buttonMonitor map[*gtk.Button]*Monitor
+type Monitor struct {
+	Button *gtk.Button
+	Info   monitorInfo.MonitorInfo
+	Form   DarkForm
+}
 
 type MonitorArea struct {
 	Area           *gtk.Fixed
@@ -20,10 +24,10 @@ type MonitorArea struct {
 	LastAllocation *gtk.Allocation
 }
 
+var buttonMonitor map[*gtk.Button]*Monitor
+
 func NewSoftDark(area *gtk.Fixed) *MonitorArea {
-	monitorArea := new(MonitorArea)
-	monitorArea.Area = area
-	return monitorArea
+	return &MonitorArea{Area: area}
 }
 
 func (s *MonitorArea) Init() {
@@ -124,8 +128,7 @@ func (s *MonitorArea) getSize(monitors []*Monitor) (height, width int) {
 // refreshMonitorInfo : Refreshes the monitor hardware info
 func (s *MonitorArea) refreshMonitorInfo() error {
 	// Get monitor hardware info
-	monitorInfoTool := softmonitorInfo.NewSoftMonitorInfo()
-	monitorInfoDetails, err := monitorInfoTool.GetMonitorInfo()
+	monitorInfoDetails, err := monitorInfo.GetMonitorInfo()
 	if err != nil {
 		return err
 	}
@@ -133,7 +136,7 @@ func (s *MonitorArea) refreshMonitorInfo() error {
 	s.Monitors = make([]*Monitor, 0)
 
 	for _, info := range monitorInfoDetails {
-		monitor := newMonitor(info)
+		monitor := &Monitor{Info: info}
 		s.Monitors = append(s.Monitors, monitor)
 	}
 
@@ -170,8 +173,7 @@ func (s *MonitorArea) updateScreenshots() {
 		height := int(float64(currentMonitor.Info.Height) / scaleFactor)
 
 		// Add a screenshot to the button
-		screenshot := screenShot.NewScreenShot()
-		image, err := screenshot.GetScreenShot(currentMonitor.Info.Number, width-buttonImageMargin*2, height-buttonImageMargin*2)
+		image, err := screenShot.GetScreenShot(currentMonitor.Info.Number, width-buttonImageMargin*2, height-buttonImageMargin*2)
 		if err != nil {
 			log.Println(err)
 		} else {

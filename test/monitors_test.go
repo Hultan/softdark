@@ -1,27 +1,26 @@
 package test
 
 import (
-	"github.com/hultan/softdark/internal/softmonitorInfo"
+	"github.com/hultan/softdark/internal/monitorInfo"
 	"testing"
 )
 
 func TestMonitors(t *testing.T) {
-	m := softmonitorInfo.NewSoftMonitorInfo()
-	got, err := m.GetMonitorInfo()
-	if err!=nil {
+	got, err := monitorInfo.GetMonitorInfo()
+	if err != nil {
 		t.Error(err)
 	}
-	if len(got)!=3 {
+	if len(got) != 3 {
 		t.Errorf("incorrect number of monitors")
 	}
 	if got[0].Main != true && got[1].Main != false && got[2].Main != false {
 		t.Errorf("first monitor should be main")
 	}
-	for key,value := range got {
-		if value.Height!=1080 {
+	for key, value := range got {
+		if value.Height != 1080 {
 			t.Errorf("wrong height (%d) for monitor {%d}", value.Height, key)
 		}
-		if value.Width!=1920 {
+		if value.Width != 1920 {
 			t.Errorf("wrong width (%d) for monitor {%d}", value.Width, key)
 		}
 	}

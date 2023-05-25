@@ -18,7 +18,7 @@ type MainForm struct {
 
 // NewMainForm : Creates a new MainForm object
 func NewMainForm() *MainForm {
-	return new(MainForm)
+	return &MainForm{}
 }
 
 // OpenMainForm : Opens the MainForm window
